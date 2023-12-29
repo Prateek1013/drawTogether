@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 const Board = () => {
   const canvas_ref = useRef(null);
@@ -15,7 +15,7 @@ const Board = () => {
     context.lineWidth = size;
   }, [color, size]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // this is for mounting
     if (!canvas_ref.current) return;
     const canvas = canvas_ref.current;
@@ -34,7 +34,7 @@ const Board = () => {
       context.stroke();
     };
     const handlemouseup = () => {
-      draw.current=false;
+      draw.current = false;
     };
 
     canvas.addEventListener("mousedown", handlemousedown);
