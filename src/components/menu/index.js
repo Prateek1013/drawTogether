@@ -15,28 +15,37 @@ const Menu = () => {
   const handleclick = (item) => {
     dispatch(menuItemClick(item));
   };
-  const [col,setcol]=useState({
-    [MENU_ITEMS]:'#000000'
+  const [col, setcol] = useState({
+    [MENU_ITEMS]: "#000000",
   });
   return (
     <div className={styles.menuContainer}>
       <div
         className={styles.iconWrapper}
-        style={{backgroundColor:col.PENCIL}}
+        style={{ backgroundColor: col.PENCIL }}
         onClick={() => {
           handleclick(MENU_ITEMS.PENCIL);
-          setcol((prevCol) => ({ ...Object.fromEntries(Object.keys(prevCol).map(key => [key, null])), [MENU_ITEMS.PENCIL]: "#e3e2fe" }));
-
+          setcol((prevCol) => ({
+            ...Object.fromEntries(
+              Object.keys(prevCol).map((key) => [key, null])
+            ),
+            [MENU_ITEMS.PENCIL]: "#e3e2fe",
+          }));
         }}
       >
         <FaPencil className={styles.icon} />
       </div>
       <div
         className={styles.iconWrapper}
-        style={{backgroundColor:col.ERASER}}
+        style={{ backgroundColor: col.ERASER }}
         onClick={() => {
           handleclick(MENU_ITEMS.ERASER);
-          setcol((prevCol) => ({ ...Object.fromEntries(Object.keys(prevCol).map(key => [key, null])), [MENU_ITEMS.ERASER]: "#e3e2fe" }));
+          setcol((prevCol) => ({
+            ...Object.fromEntries(
+              Object.keys(prevCol).map((key) => [key, null])
+            ),
+            [MENU_ITEMS.ERASER]: "#e3e2fe",
+          }));
         }}
       >
         <FaEraser className={styles.icon} />
