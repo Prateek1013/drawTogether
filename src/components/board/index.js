@@ -1,28 +1,37 @@
 import { MENU_ITEMS } from "@/constants";
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { actionItemClick } from "@/slices-redux/menuSlice";
 const Board = () => {
   const canvas_ref = useRef(null);
   const draw = useRef(false);
-  const {activemenu, actionmenu }= useSelector((state) => state.menu);
+  const { activemenu, actionmenu } = useSelector((state) => state.menu);
   const { color, size } = useSelector((state) => state.toolbox[activemenu]);
-  const dispatch=useDispatch();
-
-  useEffect(()=>{
+  const dispatch = useDispatch();
+  const canvasHistory = useRef([]);
+  const historyPtr=useRef(0);
+  useEffect(() => {
     if (!canvas_ref) return;
     const canvas = canvas_ref.current;
     const context = canvas.getContext("2d");
-    if(actionmenu===MENU_ITEMS.DOWNLOAD)
-    {
-      const URL=canvas.toDataURL();
-      const a_tag=document.createElement('a');
-      a_tag.href=URL;
-      a_tag.download='sketch.jpg'; 
+    if (actionmenu === MENU_ITEMS.DOWNLOAD) {
+      const URL = canvas.toDataURL();
+      const a_tag = document.createElement("a");
+      a_tag.href = URL;
+      a_tag.download = "sketch.jpg";
       a_tag.click();
+    } else if (actionmenu === MENU_ITEMS.UNDO) {
+      if(historyPtr.current>0) historyPtr.current-=1; 
+      const imgData=canvasHistory.current[historyPtr.current];
+      context.putImageData(imgData,0,0);
+
+    } else if (actionmenu === MENU_ITEMS.REDO) {
+      if(historyPtr.current<canvasHistory.current.length-1) historyPtr.current+=1;
+      const imgData=canvasHistory.current[historyPtr.current];
+      context.putImageData(imgData,0,0);
     }
     dispatch(actionItemClick(null));
-  },[actionmenu])
+  }, [actionmenu]);
 
   useEffect(() => {
     if (!canvas_ref) return;
@@ -53,6 +62,9 @@ const Board = () => {
     };
     const handlemouseup = () => {
       draw.current = false;
+      const currBoardImg=context.getImageData(0,0,canvas.width,canvas.height);
+      canvasHistory.current.push(currBoardImg);
+      historyPtr.current=canvasHistory.current.length-1;
     };
 
     canvas.addEventListener("mousedown", handlemousedown);

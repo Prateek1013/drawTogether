@@ -53,10 +53,10 @@ const Menu = () => {
       >
         <FaEraser className={styles.icon} />
       </div>
-      <div className={styles.iconWrapper}>
+      <div className={styles.iconWrapper} onClick={()=>{handleActionClick(MENU_ITEMS.UNDO)}}>
         <FaArrowRotateLeft className={styles.icon} />
       </div>
-      <div className={styles.iconWrapper}>
+      <div className={styles.iconWrapper} onClick={()=>{handleActionClick(MENU_ITEMS.REDO)}}>
         <FaArrowRotateRight className={styles.icon} />
       </div>
       <div className={styles.iconWrapper} onClick={()=> {handleActionClick(MENU_ITEMS.DOWNLOAD)}}>
