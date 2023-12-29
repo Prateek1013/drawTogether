@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa6";
 import styles from "./index.module.css";
 import { MENU_ITEMS } from "@/constants";
-import { menuItemClick } from "@/slices-redux/menuSlice";
+import { menuItemClick,actionItemClick } from "@/slices-redux/menuSlice";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
 const Menu = () => {
@@ -18,6 +18,9 @@ const Menu = () => {
   const [col, setcol] = useState({
     [MENU_ITEMS]: "#000000",
   });
+  const handleActionClick=(item)=>{
+    dispatch(actionItemClick(item))
+  }
   return (
     <div className={styles.menuContainer}>
       <div
@@ -56,7 +59,7 @@ const Menu = () => {
       <div className={styles.iconWrapper}>
         <FaArrowRotateRight className={styles.icon} />
       </div>
-      <div className={styles.iconWrapper}>
+      <div className={styles.iconWrapper} onClick={()=> {handleActionClick(MENU_ITEMS.DOWNLOAD)}}>
         <FaDownload className={styles.icon} />
       </div>
     </div>
