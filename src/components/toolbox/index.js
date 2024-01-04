@@ -2,9 +2,10 @@ import styles from "./index.module.css";
 import { COLORS, MENU_ITEMS } from "@/constants";
 import { useSelector, useDispatch } from "react-redux";
 import { changeColor, chnageBrushSize } from "@/slices-redux/toolboxSlice";
+import { socket } from "@/socket";
 const ToolBox = () => {
   const activemenu = useSelector((state) => state.menu.activemenu);
-  const size_val = useSelector((state) => state.toolbox[activemenu].size);
+  const {col_val,size_val} = useSelector((state) => state.toolbox[activemenu]);
 
   const showcolors = activemenu !== MENU_ITEMS.ERASER;
   const dispatch = useDispatch();
@@ -12,7 +13,7 @@ const ToolBox = () => {
     <div className={styles.toolboxContainer}>
       {showcolors && (
         <div className={styles.toolItem}>
-          <h4 className={styles.toolText}>Stroke Color</h4>
+         
           <div className={styles.itemContainer}>
             {COLORS.map((color) => (
               <div
@@ -25,6 +26,7 @@ const ToolBox = () => {
                       color,
                     })
                   );
+                  socket.emit('changeconfig',{color,size:size_val})
                 }}
               />
             ))}
@@ -32,7 +34,6 @@ const ToolBox = () => {
         </div>
       )}
       <div className={styles.toolItem}>
-        <h4 className={styles.toolText}>Brush Size</h4>
         <div className={styles.itemContainer}>
           <input
             type="range"
@@ -47,6 +48,7 @@ const ToolBox = () => {
                   size: e.target.value,
                 })
               );
+              socket.emit('changeconfig',{color:col_val,size:e.target.value})
             }}
           />
           {size_val}

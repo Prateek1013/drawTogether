@@ -2,6 +2,7 @@ import { MENU_ITEMS } from "@/constants";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { actionItemClick } from "@/slices-redux/menuSlice";
+import { socket } from "@/socket";
 const Board = () => {
   const canvas_ref = useRef(null);
   const draw = useRef(false);
@@ -40,6 +41,10 @@ const Board = () => {
 
     context.strokeStyle = color;
     context.lineWidth = size;
+    socket.on('any_changeconfig',(arg)=>{
+      context.strokeStyle = arg.color;
+    context.lineWidth = arg.size;
+    })
   }, [color, size]);
 
   useLayoutEffect(() => {
@@ -54,11 +59,14 @@ const Board = () => {
       draw.current = true;
       context.beginPath();
       context.moveTo(e.clientX, e.clientY);
+      socket.emit('beginPath',{x:e.clientX,y:e.clientY})
     };
     const handlemousemove = (e) => {
       if (!draw.current) return;
       context.lineTo(e.clientX, e.clientY);
       context.stroke();
+      socket.emit('drawPath',{x:e.clientX,y:e.clientY})
+      
     };
     const handlemouseup = () => {
       draw.current = false;
@@ -70,10 +78,30 @@ const Board = () => {
     canvas.addEventListener("mousedown", handlemousedown);
     canvas.addEventListener("mousemove", handlemousemove);
     canvas.addEventListener("mouseup", handlemouseup);
+    socket.on('anything_path',(arg)=>{
+      context.beginPath();
+      context.moveTo(arg.x,arg.y);
+    })
+
+    socket.on('anything_draw',(arg)=>{
+      context.lineTo(arg.x,arg.y);
+      context.stroke();
+    })
+   
     return () => {
       canvas.removeEventListener("mousedown", handlemousedown);
       canvas.removeEventListener("mousemove", handlemousemove);
       canvas.removeEventListener("mouseup", handlemouseup);
+
+      socket.off('anything_path',(arg)=>{
+        context.beginPath();
+        context.moveTo(arg.x,arg.y);
+      })
+  
+      socket.off('anything_draw',(arg)=>{
+        context.lineTo(arg.x,arg.y);
+        context.stroke();
+      })
     };
   }, []);
   return <canvas ref={canvas_ref}></canvas>;

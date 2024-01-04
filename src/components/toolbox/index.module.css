@@ -1,16 +1,11 @@
 .toolboxContainer {
-    @apply p-5 absolute top-1/4 left-5 w-64 rounded-md;
+    @apply flex justify-between p-2 absolute top-8 left-10 rounded-md;
     box-shadow: theme('colors.shadow1');
     border: 1px solid theme('colors.border1');
     background-color: theme('colors.background1');
 
     .toolItem {
-        @apply mb-5;
-
-        .toolText {
-            font-size: 11px;
-            color: theme('colors.text1');
-        }
+        @apply flex justify-between mt-2 mb-5;
 
         .itemContainer {
             @apply flex justify-between mt-2;
