@@ -10,7 +10,7 @@ const Board = () => {
   const { color, size } = useSelector((state) => state.toolbox[activemenu]);
   const dispatch = useDispatch();
   const canvasHistory = useRef([]);
-  const historyPtr=useRef(0);
+  const historyPtr = useRef(0);
   useEffect(() => {
     if (!canvas_ref) return;
     const canvas = canvas_ref.current;
@@ -22,14 +22,14 @@ const Board = () => {
       a_tag.download = "sketch.jpg";
       a_tag.click();
     } else if (actionmenu === MENU_ITEMS.UNDO) {
-      if(historyPtr.current>0) historyPtr.current-=1; 
-      const imgData=canvasHistory.current[historyPtr.current];
-      context.putImageData(imgData,0,0);
-
+      if (historyPtr.current > 0) historyPtr.current -= 1;
+      const imgData = canvasHistory.current[historyPtr.current];
+      context.putImageData(imgData, 0, 0);
     } else if (actionmenu === MENU_ITEMS.REDO) {
-      if(historyPtr.current<canvasHistory.current.length-1) historyPtr.current+=1;
-      const imgData=canvasHistory.current[historyPtr.current];
-      context.putImageData(imgData,0,0);
+      if (historyPtr.current < canvasHistory.current.length - 1)
+        historyPtr.current += 1;
+      const imgData = canvasHistory.current[historyPtr.current];
+      context.putImageData(imgData, 0, 0);
     }
     dispatch(actionItemClick(null));
   }, [actionmenu]);
@@ -41,69 +41,74 @@ const Board = () => {
 
     context.strokeStyle = color;
     context.lineWidth = size;
-    socket.on('any_changeconfig',(arg)=>{
+    socket.on("any_changeconfig", (arg) => {
       context.strokeStyle = arg.color;
-    context.lineWidth = arg.size;
-    })
+      context.lineWidth = arg.size;
+    });
   }, [color, size]);
+  if (typeof window !== "undefined") {
+    useLayoutEffect(() => {
+      // this is for mounting
+      if (!canvas_ref.current) return;
+      const canvas = canvas_ref.current;
+      const context = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
 
-  useLayoutEffect(() => {
-    // this is for mounting
-    if (!canvas_ref.current) return;
-    const canvas = canvas_ref.current;
-    const context = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const handlemousedown = (e) => {
-      draw.current = true;
-      context.beginPath();
-      context.moveTo(e.clientX, e.clientY);
-      socket.emit('beginPath',{x:e.clientX,y:e.clientY})
-    };
-    const handlemousemove = (e) => {
-      if (!draw.current) return;
-      context.lineTo(e.clientX, e.clientY);
-      context.stroke();
-      socket.emit('drawPath',{x:e.clientX,y:e.clientY})
-      
-    };
-    const handlemouseup = () => {
-      draw.current = false;
-      const currBoardImg=context.getImageData(0,0,canvas.width,canvas.height);
-      canvasHistory.current.push(currBoardImg);
-      historyPtr.current=canvasHistory.current.length-1;
-    };
-
-    canvas.addEventListener("mousedown", handlemousedown);
-    canvas.addEventListener("mousemove", handlemousemove);
-    canvas.addEventListener("mouseup", handlemouseup);
-    socket.on('anything_path',(arg)=>{
-      context.beginPath();
-      context.moveTo(arg.x,arg.y);
-    })
-
-    socket.on('anything_draw',(arg)=>{
-      context.lineTo(arg.x,arg.y);
-      context.stroke();
-    })
-   
-    return () => {
-      canvas.removeEventListener("mousedown", handlemousedown);
-      canvas.removeEventListener("mousemove", handlemousemove);
-      canvas.removeEventListener("mouseup", handlemouseup);
-
-      socket.off('anything_path',(arg)=>{
+      const handlemousedown = (e) => {
+        draw.current = true;
         context.beginPath();
-        context.moveTo(arg.x,arg.y);
-      })
-  
-      socket.off('anything_draw',(arg)=>{
-        context.lineTo(arg.x,arg.y);
+        context.moveTo(e.clientX, e.clientY);
+        socket.emit("beginPath", { x: e.clientX, y: e.clientY });
+      };
+      const handlemousemove = (e) => {
+        if (!draw.current) return;
+        context.lineTo(e.clientX, e.clientY);
         context.stroke();
-      })
-    };
-  }, []);
+        socket.emit("drawPath", { x: e.clientX, y: e.clientY });
+      };
+      const handlemouseup = () => {
+        draw.current = false;
+        const currBoardImg = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+        canvasHistory.current.push(currBoardImg);
+        historyPtr.current = canvasHistory.current.length - 1;
+      };
+
+      canvas.addEventListener("mousedown", handlemousedown);
+      canvas.addEventListener("mousemove", handlemousemove);
+      canvas.addEventListener("mouseup", handlemouseup);
+      socket.on("anything_path", (arg) => {
+        context.beginPath();
+        context.moveTo(arg.x, arg.y);
+      });
+
+      socket.on("anything_draw", (arg) => {
+        context.lineTo(arg.x, arg.y);
+        context.stroke();
+      });
+
+      return () => {
+        canvas.removeEventListener("mousedown", handlemousedown);
+        canvas.removeEventListener("mousemove", handlemousemove);
+        canvas.removeEventListener("mouseup", handlemouseup);
+
+        socket.off("anything_path", (arg) => {
+          context.beginPath();
+          context.moveTo(arg.x, arg.y);
+        });
+
+        socket.off("anything_draw", (arg) => {
+          context.lineTo(arg.x, arg.y);
+          context.stroke();
+        });
+      };
+    }, []);
+  }
   return <canvas ref={canvas_ref}></canvas>;
 };
 

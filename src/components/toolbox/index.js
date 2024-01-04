@@ -17,6 +17,7 @@ const ToolBox = () => {
           <div className={styles.itemContainer}>
             {COLORS.map((color) => (
               <div
+              key={color}
                 className={styles.colorBox}
                 style={{ backgroundColor: color }}
                 onClick={(e) => {
